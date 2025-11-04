@@ -5,6 +5,8 @@ A powerful, single-file GUI application that converts PDFs to clean, well-format
 ![Python Version](https://img.shields.io/badge/python-3.7%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
+![Version](https://img.shields.io/badge/version-v1.0.0-blue)
+[![Download EXE](https://img.shields.io/badge/Download-Windows%20EXE-brightgreen)](https://github.com/M1ck4/pdf_to_md/releases/latest/download/PDF_to_MD.exe)
 
 ## 📸 Screenshot
 
@@ -65,6 +67,11 @@ cd pdf_to_md
 ```bash
 python pdf_to_md.py
 ```
+
+### Option 2: Windows Executable (No Python Required)
+
+1. Download the latest `.exe` from the [Releases page](https://github.com/M1ck4/pdf_to_md/releases/latest).
+2. Run the app directly — no installation or Python environment needed.
 
 ## 🚀 Usage
 
@@ -167,3 +174,4 @@ If you find this tool useful, please consider starring the repository!
 ---
 
 **Made with ❤️ for the Obsidian and Markdown communities**
+
