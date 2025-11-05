@@ -227,12 +227,16 @@ def detect_repeating_edges(pages_lines: List[List[str]], min_pages: int = 3):
 
 #* NOTE: Header and Footers (as well as common Watermarks, e.g. in TTRPG books) could also be handled by ignoring the regions all together. Might be worth an option. 
 
-# ===================== Header/Footer detection =====================
+# ===================== save markdown wrapper =====================
 
-def save_markdown(md: str, path: Path):
-    md = two_pass_unwrap(md, aggressive_hyphen=False)
-    md = convert_simple_callouts(md)
-    path.write_text(md, encoding="utf-8")
+#! NOT IN USE: 
+#TODO There are more tiding things that could be added to this wrapper. I leave it for later considerations.
+
+# def _save_markdown(output_path: str, md_text: str, *, aggressive_hyphen: bool = False) -> None:
+#     """Persist Markdown after a final cleanup pass."""
+#     md_text = two_pass_unwrap(md_text, aggressive_hyphen=aggressive_hyphen)
+#     md_text = convert_simple_callouts(md_text)
+#     Path(output_path).write_text(md_text, encoding="utf-8")
 
 
 # ===================== PDF → Markdown (page-wise) =====================
@@ -452,7 +456,7 @@ def pdf_to_markdown(
     # Final tidy: spacing around punctuation
     md = re.sub(r"\s+([,.;:?!])", r"\1", md)
     
-    """
+        """
     ! Added final post-processing steps:
     ! For more information see...
     ! - `fix_hyphenation()`: Function deactivated to be replaced by less aggressive hyphen unwrap
@@ -460,12 +464,12 @@ def pdf_to_markdown(
     ! - drop-in modules `callout_postprocessor.py`:
     
     """
-    #! Added final post-processing (see function declaration for `fix_hyphenation()` and helper functions in files )
     md = two_pass_unwrap(md, aggressive_hyphen=False, protect_code=True)   # hyphen unwrap + non-sentence reflow (paragraphs preserved)
     md = convert_simple_callouts(md)                    # turn "Note:/Tip:/Warning:/Example:" into callouts
 
-
+    # Sink 
     Path(output_md).write_text(md, encoding="utf-8")
+
 
 # ============================= GUI =============================
 class PDF2MDApp(tk.Tk):

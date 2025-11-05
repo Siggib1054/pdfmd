@@ -1,263 +1,283 @@
 """
 Hyphenation & line-reflow helpers for PDF -> Markdown pipelines.
 Drop-in, pure-Python. Safe defaults; configurable via kwargs.
+
+* Features:
+- Normalizes line-breaks:
+    - Normalize CRLF/CR and Unicode LS/PS (U+2028/U+2029) to "\\n" up front so that "\\r?" does not need to be included in pattern
+- hyphen unwrap:
+    - respects ASCII '-' and Unicode hyphens (U+2010..U+2014)
+    - recognizes trailing lower-case characters for merge
+- reflow of line breaks
+    - Structural guards for lists, headings, blockquotes, code fences, tables, hr lines, and "Label:" lines.
+    - Non-breaking abbreviations via explicit set + multi-dot patterns.
+    - Using Fixed-width, lookahead-only regexes (= no variable-width lookbehinds to make python re happy).
+- code-blocks:
+    - Detects fenced code blocks opened by ``` or ~~~ (length >= 3).
+    - Skips BOTH hyphen unwrapping and paragraph reflow inside fences.
+    - Supports variable fence length; closing fence must match the opener char and length.
+
+* Public API:
+- unwrap_hyphenation(text: str, aggressive_hyphen: bool = False, protect_code: bool = True) -> str
+- reflow_non_sentence_linebreaks(text: str, protect_code: bool = True) -> str
+- two_pass_unwrap(text: str, aggressive_hyphen: bool = False, protect_code: bool = True) -> str
+    - NOTE When `protect_code=True` (default), unwrap and reflow are skipped inside fenced code blocks (``` or ~~~, len>=3). Set `protect_code=False` to process text inside fences.
+
+TODO Expose variables to GUI 
 """
 from __future__ import annotations
+
+from dataclasses import dataclass
 import re
-from typing import Iterable
+from typing import Final
 
 
-#* ===================== Helpers: Reflow linebreaks =====================
+#* ================= Normalization =================
 
-# Unicode line separators:
-_LINESEP = r"(?:\r?\n|\u2028|\u2029)"
-#* Memo to future me: Find the time to finally fix this annoying \\n reformating issue in this damn code reformater!
-
-# Unicode hyphens
-_HYPHENS = r"[\-\u2010\u2011\u2012\u2013\u2014]"  # -, ‐, -, ‒, –, —
-
-
-# Step 1: unwrap hyphens: "...trans-\\nport" -> "transport"
-# (Default) logic: only unwrap if next token starts lower-case.
-_SAFE_HYPHEN_UNWRAP = re.compile(rf"(?<=[A-Za-z]){_HYPHENS}\s*{_LINESEP}(?=[a-z])")
-
-# (Optional) aggressive unwrap: also join if next token is TitleCase, but avoid when the left side is 
-# ALLCAPS (== likely an acronym split).
-#// _AGGR_HYPHEN_UNWRAP = re.compile(rf"(?<![A-Z]{{2,}})(?<=[A-Za-z]){_HYPHENS}\s*{_LINESEP}(?=[A-Z][a-z])")
-_AGGR_HYPHEN_UNWRAP = re.compile(rf"(\b[A-Za-z]+)({_HYPHENS})\s*({_LINESEP})(?=[A-Z][a-z])")
-
-
-
-#* ===================== Helpers: Reflow linebreaks =====================
-
-# Common non–sentence-ending abbreviations (extends easily).
-# Includes English + German academic/tech abbreviations. 
-# If you can think of more or want to add lang support, please feel free...  
-#! NOTE: keep it all lowercase; tokens will be converted to lowercase matching. 
-
-_NON_BREAKING_ABBREVS = {
-    # English
-    "mr.", "mrs.", "ms.", "dr.", "prof.", "sr.", "jr.", "vs.", "etc.",
-    "e.g.", "i.e.", "fig.", "eq.", "ref.", "sec.", "no.", "art.",
-    "al.", "ca.", "approx.", "dept.", "est.", "tab.",
-    # German
-    "z. b.", "z.b.", "vgl.", "usw.", "nr.", "s.", "abb.", "bsp.", "tab.",
-}
-
-# Single-token non-breaking abbreviations (extend as needed)
-_NON_BREAKING_ABBREVS = {
-    # English
-    "mr.", "mrs.", "ms.", "dr.", "prof.", "sr.", "jr.",
-    "e.g.", "i.e.", "etc.", "fig.", "eq.", "ref.", "sec.", "no.", "art.", "al.", "vs.",
-    # German
-    "vgl.", "usw.", "nr.", "s.", "abb.", "bsp.", "tab.",
-}
-
-# Multi-token patterns that must not cause a break before next line
-# NOTE: case-insensitive, supports normal space, NBSP (U+00A0), NNBSP (U+202F)
-# NOTE: This became necessary as I found a number of common german abbrevations being separated by spaces 
-_MULTI_ABBREV_PATTERNS = [
-    re.compile(r"(?i)\bz\.\s*[\u00A0\u202F]?\s*b\.\s*" + _LINESEP + r"(?=\S)"),
-    #TODO Add more as needed, e.g. (?i)\bu\.\s*a\.\s* for "u. a."
-]
-
-def _token_is_nonbreaking(word: str) -> bool:
-    return word.lower() in _NON_BREAKING_ABBREVS 
-
-def _fix_false_sentence_breaks(text: str) -> str:
-    """
-    Prevent reflow break after abbreviations like 'e.g.' or 'z. B.'
-    by changing 'e.g.\nNext' -> 'e.g. Next' (space). We only touch
-    cases where a single newline follows the abbreviation.
-    """
-    # First handle multi-token patterns
-    for pat in _MULTI_ABBREV_PATTERNS:
-        text = pat.sub(lambda m: m.group(0).replace("\n", " ").replace("\r", " "), text)
-
-    # Then handle single-token cases: "Fig.\n2" -> "Fig. 2"
-    def repl(m: re.Match) -> str:
-        token = m.group(1)
-        if token.lower() in _NON_BREAKING_ABBREVS:
-            return token + " "
-        return token + m.group(2)  # original newline
-    # capture token and the actual newline sequence as group(2)
-    text = re.sub(rf"(\b[\w\.]+)\s*({_LINESEP})(?=\S)", repl, text)
+def _normalize_newlines(text: str) -> str:
+    """Normalize all line separators to '\\n' (LF)."""
+    # Replace CRLF and CR
+    text = text.replace("\\r\\n", "\\n").replace("\\r", "\\n")
+    # Replace Unicode line/paragraph separators
+    text = text.replace("\\u2028", "\\n").replace("\\u2029", "\\n")
     return text
 
 
-# Characters that *end* sentences (keep newline after these)
-_SENT_END = set(".!?" + "…" + "\"»”" + ")]}")
 
-# Precompiled tests for "structural" next-line starters we must NOT join into
-_NEXT_IS_STRUCTURAL = re.compile(
-    r"""^[ \t]*([\-\*\+]              # bullet list: -, *, +
-        | \d{1,3}[.)]                 # ordered list: 1.  1)
-        | [A-Za-z][.)]                # alpha list:  a.  a)
-        | >                           # blockquote
-        | \#{1,6}                     # heading
-        | \|                          # table row
-        | (?:-{3,}|_{3,}|\*{3,})$     # hr-like line (--- *** ___)
-    )\b""",
-    re.X
+#* ================= Abbreviations / tokens =================
+
+_NON_BREAKING_ABBREVS: Final[set[str]] = {
+    # English
+    "e.g.", "i.e.", "vs.", "etc.", "Mr.", "Mrs.", "Ms.", "Dr.", "Prof.",
+    "Sr.", "Jr.", "St.", "No.", "Nos.", "Fig.", "Figs.", "Eq.", "Eqs.",
+    "pp.", "p.",
+    # German
+    "z.B.", "bzw.", "bspw.", "ca.", "usw.", "Nr.", "S.",
+}
+
+_MULTI_ABBREV_PATTERNS: Final[tuple[re.Pattern[str], ...]] = (
+    re.compile(r"(?:[A-Za-z]\\.){2,}$"),  # U.S., e.g., i.e., z.B.
+    re.compile(r"(?:Nr|No|S|Fig|Eq|pp|p)\\.$", re.IGNORECASE),
 )
 
-def reflow_non_sentence_linebreaks(text: str) -> str:
+# Cross-line multi-token abbreviations to FORCE join across line boundary.
+# NBSP (U+00A0) and NNBSP (U+202F) are allowed around spaces.
+_NBSP = "\\u00A0"
+_NNBSP = "\\u202F"
+_MULTI_ABBREV_CROSSLINE: Final[tuple[re.Pattern[str], ...]] = (
+    # z. [NBSP|NNBSP] B.  (common in German)
+    re.compile(rf"(?i)\\bz\\.\\s*(?:[{_NBSP}{_NNBSP}])?\\s*\\n\\s*b\\."),
+    # u. [NBSP|NNBSP] a.
+    re.compile(rf"(?i)\\bu\\.\\s*(?:[{_NBSP}{_NNBSP}])?\\s*\\n\\s*a\\."),
+)
+
+#* ================= Hyphen unwrap =================
+
+# ASCII '-' and Unicode hyphens: U+2010..U+2014
+_HYPHENS = r"[\\-\\u2010\\u2011\\u2012\\u2013\\u2014]"
+
+_BASIC_HYPHEN_JOIN = re.compile(rf"([A-Za-z]){_HYPHENS}\\s*\\n(?=[a-z])")
+_TITLECASE_JOIN = re.compile(rf"([a-z]){_HYPHENS}\\s*\\n(?=[A-Z][a-z])")  # Trans-\\nAtlantic
+
+
+
+#* ================= Structure guards =================
+
+_LIST_START = re.compile(
+    r"^\\s*(?:[*+-]\\s|\\d+\\.\\s|[A-Za-z]\\)\\s|[IVXLCDM]+\\.\\s)",
+    re.IGNORECASE,
+)
+_HEADING = re.compile(r"^\\s{0,3}#{1,6}\\s")
+_BLOCKQUOTE = re.compile(r"^\\s{0,3}>\\s")
+_CODE_FENCE_LINE = re.compile(r"^\\s{0,3}(`{3,}|~{3,})")
+_TABLE_ROW = re.compile(r"^\\s*\\|")
+_HR_LINE = re.compile(r"^\\s*(?:-{3,}|_{3,}|\\*{3,})\\s*$")
+_LABEL_LINE = re.compile(r"^\\s*[A-Za-z][\\w /-]{0,24}:\\s*$")
+
+_SENTENCE_END_CORE = ".!?…"
+_SENTENCE_TRAILING = "\"»”')]}"
+_POSSIBLE_ENDING_PUNCTUATION = tuple(_SENTENCE_END_CORE + _SENTENCE_TRAILING)
+
+
+@dataclass(frozen=True)
+class _Line:
+    raw: str
+
+    @property
+    def is_blank(self) -> bool:
+        return not self.raw.strip()
+
+    @property
+    def starts_structural_block(self) -> bool:
+        s = self.raw
+        return any(
+            pat.match(s)
+            for pat in (
+                _LIST_START,
+                _HEADING,
+                _BLOCKQUOTE,
+                _CODE_FENCE_LINE,
+                _TABLE_ROW,
+                _HR_LINE,
+                _LABEL_LINE,
+            )
+        )
+
+    def _last_token(self) -> str:
+        parts = self.raw.rstrip().split()
+        return (parts[-1] if parts else "").strip('"\''"”’)]}»")
+
+    def _matches_multi_abbrev(self, token: str) -> bool:
+        return any(p.search(token) for p in _MULTI_ABBREV_PATTERNS)
+
+    def ends_sentence(self) -> bool:
+        s = self.raw.rstrip()
+        if not s:
+            return False
+        if s[-1] not in _POSSIBLE_ENDING_PUNCTUATION:
+            return False
+
+        token = self._last_token()
+        if token.endswith("."):
+            if token in _NON_BREAKING_ABBREVS:
+                return False
+            if self._matches_multi_abbrev(token):
+                return False
+        return True
+
+#* ================= Fence handling =================
+
+def _split_by_fences(text: str) -> list[tuple[bool, str]]:
     """
-    Collapse single newlines that are *not* sentence endings *and* whose next line
-    is not a structural Markdown starter (`_NEXT_IS_STRUCTURAL`). Preserve paragraph breaks (blank lines).
+    Split text into [(is_code, chunk)] by fenced code blocks (``` / ~~~).
     """
-    lines = text.splitlines(True)
-    out = []
-    for i, line in enumerate(lines):
-        out.append(line)
-        # If this line ends with a newline and there is a next line...
-        if line.endswith(("\n", "\r")) and i + 1 < len(lines):
-            curr = line.rstrip("\r\n")
-            nxt  = lines[i + 1]
-            # If it's a blank line => paragraph break, keep as-is
-            if nxt.strip() == "":
+    lines = text.splitlines(keepends=True)
+    chunks: list[tuple[bool, str]] = []
+
+    buf: list[str] = []
+    in_code = False
+    fence_char = ""
+    fence_len = 0
+
+    def flush(is_code_block: bool) -> None:
+        nonlocal buf
+        if buf:
+            chunks.append((is_code_block, "".join(buf)))
+            buf = []
+
+    for ln in lines:
+        m = _CODE_FENCE_LINE.match(ln)
+        if m:
+            fence_seq = m.group(1)
+            char = fence_seq[0]
+            count = len(fence_seq)
+
+            if not in_code:
+                flush(False)
+                in_code = True
+                fence_char = char
+                fence_len = count
+                buf.append(ln)
                 continue
-            # If sentence-ending punctuation -> keep newline
-            if curr and curr[-1] in _SENT_END:
+            else:
+                closing = re.match(rf"^\\s{{0,3}}{re.escape(fence_char)}{{{fence_len},}}\\s*$", ln)
+                if closing:
+                    buf.append(ln)
+                    flush(True)
+                    in_code = False
+                    fence_char = ""
+                    fence_len = 0
+                    continue
+                buf.append(ln)
                 continue
-            # If the next line starts with structural Markdown -> keep newline
-            if _NEXT_IS_STRUCTURAL.match(nxt):
-                continue
-            # Otherwise: replace the *single* newline with a space by swallowing the newline we just appended:
-            out[-1] = curr + " "
+        else:
+            buf.append(ln)
+
+    flush(in_code)
+    return chunks
+
+#* ================= Main Functions =================
+
+def unwrap_hyphenation(text: str, aggressive_hyphen: bool = False, protect_code: bool = True) -> str:
+    """
+    Join words broken by hyphen + newline across wrapped lines.
+    """
+    text = _normalize_newlines(text)
+
+    if protect_code:
+        parts = _split_by_fences(text)
+    else:
+        parts = [(False, text)]
+
+    out: list[str] = []
+    for is_code, chunk in parts:
+        if is_code:
+            out.append(chunk)
+        else:
+            tmp = _BASIC_HYPHEN_JOIN.sub(r"\\1", chunk)
+            if aggressive_hyphen:
+                tmp = _TITLECASE_JOIN.sub(r"\\1", tmp)
+            out.append(tmp)
     return "".join(out)
 
-#* ===================== Helper: hyphen unwrap =====================
 
-def unwrap_hyphenation(text: str, aggressive: bool = False) -> str:
-    """
-    Remove hyphen + newline wraps. If aggressive=True, also join
-    'Trans-\nAtlantic' -> 'TransAtlantic' with safeguards.
-    """
-    
-    text = _SAFE_HYPHEN_UNWRAP.sub("", text)
+def _force_join_crossline(cur_raw: str, nxt_raw: str) -> bool:
+    pair = cur_raw + "\\n" + nxt_raw
+    return any(p.search(pair) for p in _MULTI_ABBREV_CROSSLINE)
 
-    if aggressive:
-        def _aggr_repl(m: re.Match) -> str:
-            left = m.group(1)
-            hyph = m.group(2)   # original hyphen (could be unicode)
-            nl   = m.group(3)   # original newline sequence
-            # If left token is ALLCAPS (len >=2), keep the hyphen+newline
-            if len(left) >= 2 and left.isupper():
-                return left + hyph + nl
-            # else join (drop hyphen+newline)
-            return left
-        text = _AGGR_HYPHEN_UNWRAP.sub(_aggr_repl, text)
 
-    return text
+def reflow_non_sentence_linebreaks(text: str, protect_code: bool = True) -> str:
+    """Replace *soft* single newlines with spaces to form natural paragraphs."""
+    text = _normalize_newlines(text)
 
-#* ===================== mask codeblocks from reflow =====================
+    if protect_code:
+        parts = _split_by_fences(text)
+    else:
+        parts = [(False, text)]
 
-def _split_fenced_blocks(md: str):
-    """
-    Yield (is_code, segment) tuples. Detects ``` and ~~~ fences with optional lang.
-    Keeps fences in the code segments.
-    """
-    
-    out = []
-    i = 0
-    n = len(md)
-    fence_re = re.compile(r'^(?P<indent>\s*)(?P<fence>`{3,}|~{3,})(?P<info>[^\n]*)\n', re.M)
-    pos = 0
-    while True:
-        m = fence_re.search(md, pos)
-        if not m:
-            out.append((False, md[pos:]))
-            break
-        start = m.start()
-        # non-code span before the fence
-        if start > pos:
-            out.append((False, md[pos:start]))
-        fence = m.group('fence')
-        # find closing fence of same type
-        close_re = re.compile(rf'^[ \t]*{re.escape(fence)}[ \t]*\n', re.M)
-        close = close_re.search(md, m.end())
-        end = (close.end() if close else n)
-        out.append((True, md[m.start():end]))
-        pos = end
-    return out
-
-def _split_indented_code(md: str):
-    """
-    Coarse split for indented code blocks (>=4 spaces or a tab at line start).
-    This is optional; fenced detection above already covers most cases.
-    """
-    parts = []
-    buf = []
-    in_code = False
-    for line in md.splitlines(True):
-        is_code_line = bool(re.match(r'^(?:\t| {4,})', line)) and not line.strip() == ''
-        if is_code_line or (in_code and (line.strip() != '' and re.match(r'^(?:\t| {4,})', line))):
-            if not in_code:
-                # flush text buffer
-                if buf:
-                    parts.append((False, ''.join(buf)))
-                    buf = []
-                in_code = True
-            buf.append(line)
-        else:
-            if in_code:
-                parts.append((True, ''.join(buf)))
-                buf = []
-                in_code = False
-            buf.append(line)
-    if buf:
-        parts.append((in_code, ''.join(buf)))
-    return parts
-
-def _mask_code_regions(md: str):
-    """
-    First split by fenced blocks, then inside non-code chunks split out indented blocks.
-    Returns list of (is_code, segment).
-    """
-    final = []
-    for is_code, seg in _split_fenced_blocks(md):
+    out: list[str] = []
+    for is_code, chunk in parts:
         if is_code:
-            final.append((True, seg))
-        else:
-            for is_code2, seg2 in _split_indented_code(seg):
-                final.append((is_code2, seg2))
-    return final
+            out.append(chunk)
+            continue
 
+        lines = [_Line(l) for l in chunk.splitlines()]
+        buf: list[str] = []
+        i = 0
+        while i < len(lines):
+            cur = lines[i]
+            if cur.is_blank or i == len(lines) - 1:
+                buf.append(cur.raw)
+                i += 1
+                continue
 
-#* ===================== Wrapper function =====================
+            nxt = lines[i + 1]
+            if nxt.is_blank or nxt.starts_structural_block:
+                buf.append(cur.raw)
+                i += 1
+                continue
 
-#* NOOP This version of `two_pass_unwrap()` ignores `_mask_code_regions()`. 
-# def two_pass_unwrap(text: str, aggressive_hyphen: bool = False) -> str:
-#     """
-#     Convenience wrapper: hyphen unwrap (1st pass) + reflow (2nd pass).
-#     """
-#     return reflow_non_sentence_linebreaks(unwrap_hyphenation(text, aggressive=aggressive_hyphen))
+            # Force join for cross-line multi-token abbreviations (e.g., "z.\\nB.")
+            if _force_join_crossline(cur.raw, nxt.raw):
+                buf.append(cur.raw.rstrip() + " ")
+                i += 1
+                continue
+
+            if cur.ends_sentence():
+                buf.append(cur.raw)
+                i += 1
+                continue
+
+            buf.append(cur.raw.rstrip() + " ")
+            i += 1
+
+        out.append("\\n".join(buf))
+
+    return "".join(out)
+
+#* ================= Main Functions =================
 
 def two_pass_unwrap(text: str, aggressive_hyphen: bool = False, protect_code: bool = True) -> str:
-    """
-    Convenience wrapper: hyphen unwrap (1st pass) + reflow (2nd pass).
-    If protect_code=True, skip fenced/indented code blocks.
-    """
-    if not protect_code:
-        return reflow_non_sentence_linebreaks(unwrap_hyphenation(text, aggressive=aggressive_hyphen))
-
-    pieces = _mask_code_regions(text)
-    out = []
-    for is_code, seg in pieces:
-        if is_code:
-            out.append(seg)
-        else:
-            seg = unwrap_hyphenation(seg, aggressive=aggressive_hyphen)
-            seg = reflow_non_sentence_linebreaks(seg)
-            out.append(seg)
-    return "".join(out)
-
-
-#NOTE If you also want a CLI post-processor for existing .md files, you can use:
-
-def process_lines(lines: Iterable[str], aggressive_hyphen: bool = False) -> str:
-    """
-    If you already have a list of markdown/plain lines, stitch and clean.
-    """
-    return two_pass_unwrap("\n".join(lines), aggressive_hyphen=aggressive_hyphen)
+    text = unwrap_hyphenation(text, aggressive_hyphen=aggressive_hyphen, protect_code=protect_code)
+    text = reflow_non_sentence_linebreaks(text, protect_code=protect_code)
+    return text
