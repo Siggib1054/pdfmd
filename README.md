@@ -10,7 +10,8 @@ A powerful, cross-platform application that converts PDFs — including scanned 
 
 ## 📸 Screenshot
 
-![PDF to Markdown Converter Interface](doc/Screenshot 2025-11-11 173246.png)
+![PDF to Markdown Converter Interface](doc/Screenshot%202025-11-11%20173246.png)
+
 
 ---
 
