@@ -1,4 +1,4 @@
-"""Command-line interface for pdfmd.
+"""Command-line interface for pdf_to_md.
 
 Usage examples:
   pdfmd input.pdf                         # writes input.md next to PDF
@@ -6,27 +6,26 @@ Usage examples:
   pdfmd input.pdf --ocr auto              # auto-detect scanned; use OCR if needed
   pdfmd input.pdf --ocr tesseract --export-images --page-breaks
   pdfmd input.pdf --callouts              # convert 'Note:/Warning:' blocks to callouts
-  pdfmd input.pdf --nb-abbrev "i. e.,z. B.,u. a."  # protect multilingual abbrev splits
+  pdfmd input.pdf --nonbreaking-abbrev "i. e.,z. B.,u. a."  # protect multilingual abbrev splits
 
 Exit codes: 0 on success, 1 on error.
 """
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 from typing import Optional
 
+# Flexible imports for both package and script execution
 try:
-    from pdfmd.models import Options
-    from pdfmd.pipeline import pdf_to_markdown
-except ImportError:
-    import os, sys
-    _HERE = os.path.dirname(os.path.abspath(__file__))
-    if _HERE not in sys.path:
-        sys.path.insert(0, _HERE)
-    from models import Options
-    from pipeline import pdf_to_markdown
+    from pdf_to_md.models import Options  # type: ignore
+    from pdf_to_md.pipeline import pdf_to_markdown  # type: ignore
+except Exception:
+    # Fallback to local imports when running from repo root
+    from models import Options  # type: ignore
+    from pipeline import pdf_to_markdown  # type: ignore
 
 
 OCR_CHOICES = ("off", "auto", "tesseract", "ocrmypdf")
@@ -43,6 +42,8 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="pdfmd",
         description="Convert PDF to clean Markdown (with optional OCR)",
     )
+
+    # I/O
     p.add_argument("input", help="input PDF file")
     p.add_argument("-o", "--output", help="output Markdown path (.md)")
 
@@ -56,7 +57,7 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--page-breaks", action="store_true",
                    help="insert '---' between pages")
 
-    # Transform toggles
+    # Transform toggles (existing behavior)
     p.add_argument("--keep-edges", action="store_true",
                    help="keep repeating headers/footers (do not remove)")
     p.add_argument("--no-caps-to-headings", dest="caps_to_headings", action="store_false",
@@ -67,27 +68,41 @@ def _build_parser() -> argparse.ArgumentParser:
                    help="disable orphan defragment")
     p.set_defaults(defragment=True)
 
-    p.add_argument("--heading-ratio", type=float, default=1.15,
+    p.add_argument("--heading-size-ratio", type=float, default=1.15,
                    help="= body x ratio -> heading (default: 1.15)")
     p.add_argument("--orphan-max-len", "--orphan-len", dest="orphan_max_len", type=int, default=45,
                    help="max length (chars) of orphan to merge (default: 45)")
 
-    # New reflow knobs
-    p.add_argument("--aggressive-hyphen", action="store_true",
-                   help="unwrap TitleCase hyphenation too (joins more words)")
-    p.add_argument("--no-protect-code-blocks", dest="protect_code_blocks", action="store_false",
-                   help="allow unwrap/reflow inside fenced code blocks")
-    p.set_defaults(protect_code_blocks=True)
+    # --- New: Reflow / unwrap controls ---
+    p.add_argument("--unwrap-hyphens", dest="unwrap_hyphens", action="store_true",
+                   help="join words split by hyphen + newline")
+    p.add_argument("--no-unwrap-hyphens", dest="unwrap_hyphens", action="store_false")
+    p.set_defaults(unwrap_hyphens=True)
 
-    # Callouts + multilingual abbreviation safety
+    p.add_argument("--aggressive-hyphen", action="store_true",
+                   help="also join TitleCase hyphenation across lines")
+
+    p.add_argument("--reflow-soft-breaks", dest="reflow_soft_breaks", action="store_true",
+                   help="reflow single newlines (sentence-aware) into spaces")
+    p.add_argument("--no-reflow-soft-breaks", dest="reflow_soft_breaks", action="store_false")
+    p.set_defaults(reflow_soft_breaks=True)
+
+    p.add_argument("--protect-code", dest="protect_code", action="store_true",
+                   help="skip unwrap/reflow inside fenced code blocks")
+    p.add_argument("--no-protect-code", dest="protect_code", action="store_false")
+    p.set_defaults(protect_code=True)
+
+    # --- New: Callouts + multilingual abbreviation safety ---
     p.add_argument("--callouts", dest="enable_callouts", action="store_true",
-                   help="convert 'Label:\\nBody' blocks (e.g., 'Note:') to Obsidian callouts")
+                   help="convert simple 'Label:\nBody' blocks (e.g. 'Note:') to Obsidian callouts")
     p.add_argument("--no-callouts", dest="enable_callouts", action="store_false",
                    help="disable callout conversion")
     p.set_defaults(enable_callouts=True)
 
-    p.add_argument("--nb-abbrev", metavar="LIST",
-                   help="comma-separated non-breaking abbreviations (e.g., 'i. e.,z. B.,u. a.')")
+    p.add_argument("--nonbreaking-abbrev", dest="nonbreaking_abbrev", metavar="LIST",
+                   help="comma-separated list (e.g. 'i. e.,z. B.,u. a.') to keep together across lines")
+    p.add_argument("--no-nonbreaking-abbrev", dest="nonbreaking_abbrev", action="store_const", const="",
+                   help="disable extra non-breaking abbreviations")
 
     # UX
     p.add_argument("--quiet", action="store_true", help="suppress log output")
@@ -108,33 +123,29 @@ def main(argv: Optional[list[str]] = None) -> int:
 
     outp = _derive_output_path(inp, args.output)
 
-    # Construct options with fields known to exist today.
+    # Construct options with known fields
     opts = Options(
         ocr_mode=args.ocr,
         preview_only=bool(args.preview),
         caps_to_headings=bool(args.caps_to_headings),
         defragment_short=bool(args.defragment),
-        heading_size_ratio=float(args.heading_ratio),
+        heading_size_ratio=float(args.heading_size_ratio),
         orphan_max_len=int(args.orphan_max_len),
         remove_headers_footers=not bool(args.keep_edges),
         insert_page_breaks=bool(args.page_breaks),
         export_images=bool(args.export_images),
-        aggressive_hyphen=bool(args.aggressive_hyphen),
-        protect_code_blocks=bool(args.protect_code_blocks),
     )
 
-    # Set optional, forward-compatible fields dynamically (safe even if Options
-    # doesn't declare them yet; they'll be ignored unless the pipeline uses them).
-    try:
-        opts.enable_callouts = bool(args.enable_callouts)  # type: ignore[attr-defined]
-    except Exception:
-        pass
+    # Forward-compatible: set new attributes even if older Options doesn't declare them
+    setattr(opts, "unwrap_hyphens", bool(args.unwrap_hyphens))
+    setattr(opts, "aggressive_hyphen", bool(args.aggressive_hyphen))
+    setattr(opts, "reflow_soft_breaks", bool(args.reflow_soft_breaks))
+    setattr(opts, "protect_code", bool(args.protect_code))
+    setattr(opts, "enable_callouts", bool(args.enable_callouts))
 
-    if args.nb_abbrev:
-        try:
-            opts.non_breaking_abbrevs = [s.strip() for s in args.nb_abbrev.split(",") if s.strip()]  # type: ignore[attr-defined]
-        except Exception:
-            pass
+    if args.nonbreaking_abbrev is not None:
+        extra = [s.strip() for s in args.nonbreaking_abbrev.split(",") if s.strip()]
+        setattr(opts, "non_breaking_abbrevs", extra)
 
     def log_cb(msg: str):
         if not args.quiet:
@@ -143,13 +154,10 @@ def main(argv: Optional[list[str]] = None) -> int:
     def progress_cb(done: int, total: int):
         if args.no_progress:
             return
-        # Simple single-line progress bar on stderr
-        pct = 0
         try:
-            if total > 0:
-                pct = int((done / total) * 100)
+            pct = int((done / total) * 100) if total else 0
         except Exception:
-            pct = done if 0 <= done <= 100 else 0
+            pct = 0
         bar_width = 28
         filled = int(bar_width * pct / 100)
         bar = "#" * filled + "-" * (bar_width - filled)
