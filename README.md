@@ -7,7 +7,7 @@
 ![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
-![Version](https://img.shields.io/badge/version-1.4.0-purple)
+![Version](https://img.shields.io/badge/version-1.5.0-purple)
 
 ---
 
@@ -46,6 +46,39 @@ Full support for encrypted PDFs with security-first design:
 
 Supports all PDF encryption standards: 40-bit RC4, 128-bit RC4, 128/256-bit AES.
 
+## Automatic Table Detection & Reconstruction
+
+Your PDFs often contain tables split across blocks, columns, and various layout quirks. v1.5.0 introduces a robust table engine that handles:
+
+- Column‑aligned tables (2+ spaces)
+- Tab‑separated blocks
+- Multi‑block vertical tables (PyMuPDF’s common block‑splitting behaviour)
+
+### Table Rebuild Features
+- Consistent grid reconstruction
+- Row & column alignment
+- Header detection
+- Markdown table rendering
+- Conservative heuristics to avoid false positives
+
+This dramatically improves academic papers, financial documents, and structured reports.
+
+---
+
+## 🧮 Math‑Aware Preservation & LaTeX Output
+
+Scientific documents finally convert cleanly.
+
+The Math Engine automatically:
+
+- Detects inline & display math regions
+- Converts Unicode math to LaTeX (α → \alpha, √x → \sqrt{x})
+- Converts superscripts/subscripts (x² → x^{2}, x₁₀ → x_{10})
+- Avoids Markdown escaping inside math
+- Keeps equations intact across line breaks
+
+Perfect for physics, engineering, chemistry, and high‑level mathematics documents.
+
 ---
 
 ## 🖼️ Interface Preview
@@ -60,35 +93,57 @@ Supports all PDF encryption standards: 40-bit RC4, 128-bit RC4, 128/256-bit AES.
 
 ---
 
-## ✨ Key Features
+# Key Features
 
-### 🎯 Accurate Markdown From Any PDF
+## 🎯 Accurate Markdown From Any PDF
 
 - **Smart paragraph reconstruction** — Joins wrapped lines intelligently
 - **Heading inference** — Uses font metrics to detect document structure
 - **Bullet & numbered list detection** — Recognizes various formats (•, ○, -, 1., a., etc.)
 - **Hyphenation repair** — Automatically unwraps "hy-\nphen" patterns
-- **URL auto-linking** — Converts plain URLs to clickable Markdown links
+- **URL auto-linking** — Converts plain URLs into clickable Markdown links
 - **Inline formatting** — Preserves **bold** and *italic* styling
 - **Header/footer removal** — Detects and strips repeating page elements
+- **Multi-column awareness** — Reduces cross-column text mixing
 
-### 📸 Scanned PDF Support (OCR)
+## 📊 Automatic Table Detection & Reconstruction (New)
 
-- **Tesseract OCR** — Lightweight, accurate, works on Windows/Linux/macOS
-- **OCRmyPDF** — High-fidelity layout preservation for complex documents
-- **Auto-detection** — Automatically identifies scanned pages and applies OCR
+- Column-aligned table detection (2+ spaces)
+- Tab-separated table recognition
+- Multi-block vertical table stitching
+- Full Markdown renderer (pipes, alignment)
+- Header row detection
+- Conservative heuristics to avoid false positives
+
+Perfect for academic papers, financial statements, and structured documents.
+
+## 🧮 Math-Aware Extraction & LaTeX Preservation
+
+- Detects inline and display math
+- Converts Unicode math symbols to LaTeX (`α → \\alpha`, `√x → \\sqrt{x}`)
+- Supports superscript/subscript conversion (`x² → x^{2}`)
+- Keeps equations intact across line breaks
+- Prevents Markdown escaping inside math blocks
+
+Ideal for scientific PDFs in physics, mathematics, engineering, and chemistry.
+
+## 📸 Scanned PDF Support (OCR)
+
+- **Tesseract OCR** — Lightweight, accurate, works on all major platforms
+- **OCRmyPDF** — High-fidelity layout preservation
+- **Auto-detection** — Automatically identifies scanned pages
 - **Configurable quality** — Balance between speed and accuracy
-- **Mixed-mode support** — Handles PDFs with both text and scanned pages
+- **Mixed-mode support** — Handles PDFs with both digital text and scanned pages
 
-### 🎨 Modern GUI Experience
+## 🎨 Modern GUI Experience
 
-- **Dark/Light themes** — Obsidian-style dark mode (default) with instant switching
-- **Live progress tracking** — Determinate progress bar with detailed logging
+- **Dark/Light themes** — Obsidian-style dark mode (default) with instant toggle
+- **Live progress tracking** — Determinate progress bar with full logging
 - **Error-aware console** — Real-time extraction and conversion logs
-- **"Open Output Folder"** — Quick access to converted files
-- **Non-blocking conversion** — Cancel long-running operations anytime
-- **Keyboard shortcuts** — Power-user productivity
-- **Persistent settings** — All preferences saved between sessions
+- **"Open Output Folder"** — Fast access to finished Markdown
+- **Non-blocking conversion** — Cancel long-running jobs anytime
+- **Keyboard shortcuts** — Power-user workflow
+- **Persistent settings** — Theme, paths, options, and profiles saved between sessions
 
 ### 📋 Profiles System
 
