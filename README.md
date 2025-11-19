@@ -1,6 +1,6 @@
 # PDF to Markdown Converter
 
-**A refined, privacy first desktop and CLI tool that converts PDFs, including scanned documents into clean, structured Markdown. Built for researchers, professionals, and creators who demand accuracy, speed, and absolute data privacy.**
+**A refined, privacy first desktop and CLI tool that converts PDFs, including scanned documents—into clean, structured Markdown. Built for researchers, professionals, and creators who demand accuracy, speed, and absolute data privacy.**
 
 **Fast. Local. Intelligent. Fully offline.**
 
@@ -15,12 +15,12 @@
 
 Many PDF converters silently upload documents to remote servers. **This tool does not.**
 
-* **No uploads:** your files never leave your machine
-* **No telemetry:** no usage tracking or analytics
-* **No cloud processing:** all computation happens locally
-* **No background requests:** completely offline operation
+* **No uploads:** Your files never leave your machine
+* **No telemetry:** No usage tracking or analytics
+* **No cloud processing:** All computation happens locally
+* **No background requests:** Completely offline operation
 
-Every step, extraction, OCR, reconstruction, and rendering, happens **locally on your machine**.
+Every step, extraction, OCR, reconstruction, and rendering—happens **locally on your machine**.
 
 ### Trusted for Sensitive Workflows
 
@@ -46,13 +46,15 @@ Full support for encrypted PDFs with security-first design:
 
 Supports all PDF encryption standards: 40-bit RC4, 128-bit RC4, 128/256-bit AES.
 
-## Automatic Table Detection & Reconstruction
+---
+
+## 📊 Automatic Table Detection & Reconstruction
 
 Your PDFs often contain tables split across blocks, columns, and various layout quirks. v1.5.0 introduces a robust table engine that handles:
 
-- Column‑aligned tables (2+ spaces)
-- Tab‑separated blocks
-- Multi‑block vertical tables (PyMuPDF’s common block‑splitting behaviour)
+- Column-aligned tables (2+ spaces)
+- Tab-separated blocks
+- Multi-block vertical tables (PyMuPDF's common block-splitting behavior)
 
 ### Table Rebuild Features
 - Consistent grid reconstruction
@@ -65,19 +67,19 @@ This dramatically improves academic papers, financial documents, and structured 
 
 ---
 
-## 🧮 Math‑Aware Preservation & LaTeX Output
+## 🧮 Math-Aware Preservation & LaTeX Output
 
 Scientific documents finally convert cleanly.
 
 The Math Engine automatically:
 
 - Detects inline & display math regions
-- Converts Unicode math to LaTeX (α → \alpha, √x → \sqrt{x})
-- Converts superscripts/subscripts (x² → x^{2}, x₁₀ → x_{10})
+- Converts Unicode math to LaTeX (`α → \alpha`, `√x → \sqrt{x}`)
+- Converts superscripts/subscripts (`x² → x^{2}`, `x₁₀ → x_{10}`)
 - Avoids Markdown escaping inside math
 - Keeps equations intact across line breaks
 
-Perfect for physics, engineering, chemistry, and high‑level mathematics documents.
+Perfect for physics, engineering, chemistry, and high-level mathematics documents.
 
 ---
 
@@ -93,9 +95,9 @@ Perfect for physics, engineering, chemistry, and high‑level mathematics docume
 
 ---
 
-# Key Features
+## ✨ Key Features
 
-## 🎯 Accurate Markdown From Any PDF
+### 🎯 Accurate Markdown From Any PDF
 
 - **Smart paragraph reconstruction** — Joins wrapped lines intelligently
 - **Heading inference** — Uses font metrics to detect document structure
@@ -106,7 +108,7 @@ Perfect for physics, engineering, chemistry, and high‑level mathematics docume
 - **Header/footer removal** — Detects and strips repeating page elements
 - **Multi-column awareness** — Reduces cross-column text mixing
 
-## 📊 Automatic Table Detection & Reconstruction
+### 📊 Automatic Table Detection & Reconstruction
 
 - Column-aligned table detection (2+ spaces)
 - Tab-separated table recognition
@@ -117,17 +119,17 @@ Perfect for physics, engineering, chemistry, and high‑level mathematics docume
 
 Perfect for academic papers, financial statements, and structured documents.
 
-## 🧮 Math-Aware Extraction & LaTeX Preservation
+### 🧮 Math-Aware Extraction & LaTeX Preservation
 
 - Detects inline and display math
-- Converts Unicode math symbols to LaTeX (`α → \\alpha`, `√x → \\sqrt{x}`)
+- Converts Unicode math symbols to LaTeX (`α → \alpha`, `√x → \sqrt{x}`)
 - Supports superscript/subscript conversion (`x² → x^{2}`)
 - Keeps equations intact across line breaks
 - Prevents Markdown escaping inside math blocks
 
 Ideal for scientific PDFs in physics, mathematics, engineering, and chemistry.
 
-## 📸 Scanned PDF Support (OCR)
+### 📸 Scanned PDF Support (OCR)
 
 - **Tesseract OCR** — Lightweight, accurate, works on all major platforms
 - **OCRmyPDF** — High-fidelity layout preservation
@@ -135,7 +137,7 @@ Ideal for scientific PDFs in physics, mathematics, engineering, and chemistry.
 - **Configurable quality** — Balance between speed and accuracy
 - **Mixed-mode support** — Handles PDFs with both digital text and scanned pages
 
-## 🎨 Modern GUI Experience
+### 🎨 Modern GUI Experience
 
 - **Dark/Light themes** — Obsidian-style dark mode (default) with instant toggle
 - **Live progress tracking** — Determinate progress bar with full logging
@@ -145,7 +147,7 @@ Ideal for scientific PDFs in physics, mathematics, engineering, and chemistry.
 - **Keyboard shortcuts** — Power-user workflow
 - **Persistent settings** — Theme, paths, options, and profiles saved between sessions
 
-### 📋 Profiles System
+#### 📋 Profiles System
 
 **Built-in Profiles:**
 
@@ -160,7 +162,7 @@ Ideal for scientific PDFs in physics, mathematics, engineering, and chemistry.
 - Perfect for repeated document types (e.g., "Legal Briefs", "Lab Reports")
 - Edit, rename, or delete user profiles anytime
 
-### ⌨️ Keyboard Shortcuts
+#### ⌨️ Keyboard Shortcuts
 
 | Shortcut | Action |
 |----------|--------|
@@ -197,13 +199,10 @@ PDF Input
 Markdown Output
 ```
 
-# 🧠 Module Breakdown
+### 📦 Module Overview
 
 Each module maintains a single responsibility, ensuring the system remains clean, testable, and easy to extend.
 
----
-
-## 📦 Module Overview
 | Module             | Purpose                                                                                                                |
 | ------------------ | ---------------------------------------------------------------------------------------------------------------------- |
 | **`extract.py`**   | PDF text extraction, OCR orchestration, structural block formation, encrypted-PDF support                              |
@@ -212,16 +211,14 @@ Each module maintains a single responsibility, ensuring the system remains clean
 | **`transform.py`** | Text cleanup, header/footer removal, block classification, integration of table/math structures into the document flow |
 | **`render.py`**    | Final Markdown generation with headings, lists, links, images, tables, and math rendering                              |
 | **`pipeline.py`**  | End-to-end orchestration: extract → structure → transform → tables → equations → render                                |
-| **`models.py`**    | Typed data structures: `PageText`, `Block`, `TableBlock`, `EquationBlock`, `Line`, `Span`, `Options`                   |
+| **`models.py`**    | Typed data structures: `PageText`, `Block`, `Line`, `Span`, `Options`                                                  |
 | **`utils.py`**     | Platform helpers, OCR detection utilities, file handling, temp-file safety, logging tools                              |
 | **`app_gui.py`**   | Tkinter GUI: profiles, theming, progress tracking, encrypted-PDF dialogs                                               |
 | **`cli.py`**       | Command-line interface for batch automation, scripting, and secured password prompts                                   |
 
----
+### 🏗️ Design Philosophy
 
-## 🏗️ Design Philosophy
-
-### ⭐ **Single Responsibility per Module**
+**⭐ Single Responsibility per Module**
 
 Each component focuses on doing *one* thing well:
 
@@ -235,9 +232,7 @@ Each component focuses on doing *one* thing well:
 
 This eliminates cross-contamination and makes features reliable and testable.
 
----
-
-## 🔄 Data Flow Overview
+### 🔄 Data Flow Overview
 
 ```
 PDF → extract.py
@@ -263,45 +258,53 @@ Final Markdown output
 
 This modular pipeline allows tables and equations to slot into the flow cleanly, without affecting the behavior of unrelated modules.
 
----
+### 🔍 Why This Matters
 
-## 🔍 Why This Matters
+* **Researchers** get reliable table conversion
+* **Academics** get inline and display math suitable for Obsidian, Jupyter, pandoc, and mkdocs
+* **Developers** get an extensible pipeline where new block types can be added without breaking existing components
+* **Users** get clearer, more accurate Markdown output without extra configuration
 
-* **Researchers** get reliable table conversion.
-* **Academics** get inline and display math suitable for Obsidian, Jupyter, pandoc, and mkdocs.
-* **Developers** get an extensible pipeline where new block types can be added without breaking existing components.
-* **Users** get clearer, more accurate Markdown output without extra configuration.
-
----
-
-## 🚀 Ready for Future Expansion
+### 🚀 Ready for Future Expansion
 
 With tables and equations now modularized, future upgrades can be added easily:
 
-* better table spanning (row/column spans)
-* math rendering modes (strict, permissive)
-* charts detection
-* diagram extraction
-* semantic tagging for AI/LLM workflows
+* Better table spanning (row/column spans)
+* Math rendering modes (strict, permissive)
+* Charts detection
+* Diagram extraction
+* Semantic tagging for AI/LLM workflows
 
-This architecture forms a scalable base for long-term evolution of **pdf_to_md**.
+This architecture forms a scalable base for long-term evolution of **pdfmd**.
 
 ---
 
 ## ⚙️ Installation
 
-### Quick Install
+### Quick Install (Development)
 
 ```bash
 # Clone repository
-git clone https://github.com/M1ck4/pdf_to_md.git
-cd pdf_to_md
+git clone https://github.com/M1ck4/pdfmd.git
+cd pdfmd
 
 # Install dependencies
 pip install pymupdf pillow pytesseract ocrmypdf
 
 # Launch GUI
-python app_gui.py
+python -m pdfmd.app_gui
+```
+
+### Install as Package (Recommended)
+
+```bash
+# Clone and install
+git clone https://github.com/M1ck4/pdfmd.git
+cd pdfmd
+pip install -e .
+
+# Now you can use the 'pdfmd' command from anywhere
+pdfmd input.pdf
 ```
 
 ### Platform-Specific Setup
@@ -310,11 +313,16 @@ python app_gui.py
 
 1. **Install Tesseract OCR:**
    - Download: https://github.com/UB-Mannheim/tesseract/wiki
-   - Run installer and add to PATH
+   - Run installer and check "Add to PATH"
    
 2. **Install Python packages:**
    ```cmd
    pip install pymupdf pillow pytesseract
+   ```
+
+3. **Verify Tesseract:**
+   ```cmd
+   tesseract --version
    ```
 
 #### macOS
@@ -343,7 +351,7 @@ pip install pymupdf pillow pytesseract ocrmypdf
 
 ### Windows Standalone Executable
 
-Download the latest `.exe` from [Releases](https://github.com/M1ck4/pdf_to_md/releases) — no Python required.
+Download the latest `.exe` from [Releases](https://github.com/M1ck4/pdfmd/releases) — no Python required.
 
 **Note:** Tesseract must still be installed separately for OCR functionality.
 
@@ -354,12 +362,16 @@ Download the latest `.exe` from [Releases](https://github.com/M1ck4/pdf_to_md/re
 ### GUI Application
 
 ```bash
+# If installed as package:
+python -m pdfmd.app_gui
+
+# Or directly:
 python app_gui.py
 ```
 
 #### Quick Workflow
 
-1. **Select Input PDF** — Browse
+1. **Select Input PDF** — Browse or drag-and-drop
 2. **Choose Output** — Auto-suggested `.md` file
 3. **Select Profile** — Use built-in or custom settings
 4. **Configure Options:**
@@ -369,192 +381,125 @@ python app_gui.py
    - Remove repeating headers/footers
    - Adjust heading detection sensitivity
 5. **Convert** — Click button or press Ctrl+Enter
-6. **Monitor Progress** — Watch live logs
+6. **Monitor Progress** — Watch live logs and progress bar
 7. **Open Output** — Click folder link when done
 
-### Command-Line Interface
+---
 
-#### Basic Usage
+## 📟 Command-Line Interface
+
+### Basic Usage
+
+```bash
+# If installed as package:
+pdfmd input.pdf
+
+# Or using Python module:
+python -m pdfmd.cli input.pdf
+
+# Or directly (from package directory):
+python cli.py input.pdf
+```
+
+### Common Commands
 
 ```bash
 # Convert with default settings
-python cli.py input.pdf
+pdfmd input.pdf
 
 # Specify output path
-python cli.py input.pdf -o output.md
+pdfmd input.pdf -o output.md
 
 # Enable auto-OCR detection
-python cli.py input.pdf --ocr auto
+pdfmd input.pdf --ocr auto
 
 # Force Tesseract OCR + export images
-python cli.py scan.pdf --ocr tesseract --export-images
+pdfmd scan.pdf --ocr tesseract --export-images
 
 # Preview first 3 pages only
-python cli.py large.pdf --preview-only
+pdfmd large.pdf --preview-only
+
+# Show statistics after conversion
+pdfmd document.pdf --stats
+
+# Quiet mode (errors only)
+pdfmd document.pdf --quiet
+
+# Verbose output
+pdfmd document.pdf -v
 ```
 
-# pdfmd Command-Line Help (Improved)
-
-A fast, local, privacy‑first PDF → Markdown converter with **table reconstruction**, **math‑aware extraction**, **OCR support**, and **password‑protected PDF handling**.
-
-Everything happens **offline on your machine** — no uploads, no telemetry, no tracking.
-
----
-
-## 🧩 Basic Usage
-
-### --help
+### Full Options Reference
 
 ```
-pdfmd --help
+usage: pdfmd [-h] [-o OUTPUT] [--ocr {off,auto,tesseract,ocrmypdf}]
+             [--export-images] [--page-breaks] [--preview-only]
+             [--no-progress] [-q] [-v] [--stats] [--no-color] [--version]
+             INPUT_PDF [INPUT_PDF ...]
+
+positional arguments:
+  INPUT_PDF             Path(s) to input PDF file(s)
+
+options:
+  -h, --help            Show this help message and exit
+  -o, --output OUTPUT   Output path (file for single PDF, directory for multiple)
+  --ocr {off,auto,tesseract,ocrmypdf}
+                        OCR mode (default: off)
+  --export-images       Export images to _assets/ folder
+  --page-breaks         Insert '---' page break markers
+  --preview-only        Only process first few pages
+  --no-progress         Disable progress bar
+  -q, --quiet           Suppress non-error messages
+  -v, --verbose         Increase verbosity (-v or -vv)
+  --stats               Print statistics after conversion
+  --no-color            Disable colored output
+  --version             Print version and exit
 ```
 
-Display full usage, options, examples, security notes, and OCR modes.
+### OCR Modes Explained
 
-```
-pdfmd input.pdf
-pdfmd input.pdf -o notes.md
-pdfmd *.pdf --ocr auto --stats
-```
+- **`off`** — Fast native text extraction (for born-digital PDFs)
+- **`auto`** — Detects scanned pages automatically, applies OCR only when needed
+- **`tesseract`** — Force page-by-page OCR (scanned books, forms)
+- **`ocrmypdf`** — Maximum layout fidelity (complex documents, tables)
 
-* If you specify a single PDF → output is `input.md`
-* If you specify multiple PDFs → `--output` must be a directory
-* All files are processed locally
+### Password-Protected PDFs
 
----
-
-## 🛠️ Options
-
-### **Output Control**
-
-```
--o, --output PATH   Output Markdown file, or directory for multiple PDFs
-```
-
-### **OCR Modes**
-
-```
---ocr off|auto|tesseract|ocrmypdf
-```
-
-* `off` — use native PDF text
-* `auto` — detect scanned pages and OCR only when needed
-* `tesseract` — force page‑by‑page OCR
-* `ocrmypdf` — best layout preservation for scanned books
-
-### **Export Options**
-
-```
---export-images     Save images to _assets/
---page-breaks       Insert '---' between pages
-```
-
-### **Workflow Tools**
-
-```
---preview-only      Convert first few pages only
---stats             Print words/headings/tables/lists after conversion
---no-progress       Hide progress bar
--q, --quiet         Only show errors
--v, --verbose       More logging (use -vv for debug)
---no-color          Disable coloured output
---version           Show application version
-```
-
----
-
-## 🔐 Password-Protected PDFs
-
-When a PDF is encrypted:
-
-* pdfmd attempts to open it normally
-* If access is denied, you’ll be prompted:
+When a PDF is encrypted, you'll be prompted:
 
 ```
 PDF is password protected. Enter password (input will be hidden):
 ```
 
-Passwords:
+**Security features:**
+- Passwords are never logged or saved
+- Never passed via command-line arguments
+- Memory-only processing
+- Auto-cleanup of temporary files
 
-* are never logged
-* are never saved
-* are never passed via command-line arguments
+In non-interactive environments (scripts, cron), encrypted PDFs are skipped safely.
 
-If running in a non-interactive environment (e.g., scripts, cron), secured PDFs are skipped safely.
-
----
-
-## 📚 Examples
-
-### Convert a report
-
-```
-pdfmd report.pdf
-```
-
-### Specify an output file
-
-```
-pdfmd report.pdf -o summary.md
-```
-
-### Auto-OCR scanned pages
-
-```
-pdfmd scan.pdf --ocr auto
-```
-
-### Force Tesseract OCR and export images
-
-```
-pdfmd book.pdf --ocr tesseract --export-images
-```
-
-### Quick preview of a large document
-
-```
-pdfmd research.pdf --preview-only --stats
-```
-
-### Batch convert multiple PDFs
-
-```
-pdfmd *.pdf --ocr auto -o out_md/
-```
-
-### Quiet mode for automation
-
-```
-pdfmd confidential.pdf --quiet --no-progress
-```
-
-## ✔️ Summary
-
-The `pdfmd` command provides a secure, fast, and highly accurate Markdown exporter designed for:
-
-* Researchers
-* Academics
-* Developers
-* Privacy‑sensitive environments
-* Obsidian and MD‑first workflows
-
-Everything is processed **offline** — your documents stay entirely on your machine.
-
----
-
-**pdfmd — clean, structured Markdown from any PDF, tables and equations included.**
-
-
-#### Batch Processing
+### Batch Processing Examples
 
 ```bash
-# Process all PDFs in directory (Bash)
+# Convert all PDFs in current directory
+pdfmd *.pdf --ocr auto
+
+# Convert to specific output directory
+pdfmd *.pdf --ocr auto -o markdown_output/
+
+# Bash loop with custom processing
 for pdf in *.pdf; do
-    python cli.py "$pdf" --ocr auto
+    pdfmd "$pdf" --ocr auto --export-images
 done
 
 # Windows PowerShell
-Get-ChildItem *.pdf | ForEach-Object { python cli.py $_.FullName --ocr auto }
+Get-ChildItem *.pdf | ForEach-Object { 
+    pdfmd $_.FullName --ocr auto 
+}
+
+# Parallel processing (Unix, requires GNU parallel)
+find . -name "*.pdf" | parallel -j 4 pdfmd {} --ocr auto
 ```
 
 ---
@@ -568,13 +513,6 @@ Get-ChildItem *.pdf | ForEach-Object { python cli.py $_.FullName --ocr auto }
 | **Windows** | Tesseract | Native PyMuPDF | Fast, lightweight |
 | **macOS** | OCRmyPDF | Tesseract | Best layout preservation |
 | **Linux** | OCRmyPDF | Tesseract | Ideal for servers |
-
-### OCR Modes Explained
-
-- **`off`** — Fast native text extraction (for born-digital PDFs)
-- **`auto`** — Detects scanned pages automatically, applies OCR only when needed
-- **`tesseract`** — Force page-by-page OCR (scanned books, forms)
-- **`ocrmypdf`** — Maximum layout fidelity (complex documents, tables)
 
 ### Scanned PDF Detection
 
@@ -649,33 +587,33 @@ This is a paragraph with hyphenation.
 
 ---
 
-## 🦯 Performance Tips
+## ⚡ Performance Tips
 
 ### For Large Documents (100+ pages)
 
 1. **Test with preview mode first:**
    ```bash
-   python cli.py large.pdf --preview-only --ocr auto
+   pdfmd large.pdf --preview-only --ocr auto
    ```
 
 2. **Disable OCR if not needed:**
    ```bash
-   python cli.py text-only.pdf --ocr off
+   pdfmd text-only.pdf --ocr off
    ```
 
-3. **Only export images when necessary** — each image adds processing time
+3. **Only export images when necessary** — Each image adds processing time
 
 ### For Slow Systems
 
-1. **Use Tesseract instead of OCRmyPDF** — faster but less accurate
+1. **Use Tesseract instead of OCRmyPDF** — Faster but less accurate
 2. **Close other applications** — OCR is CPU-intensive
-3. **Process in batches** — split large PDFs first
+3. **Process in batches** — Split large PDFs first
 
-### Batch Processing with Parallel
+### Batch Processing Performance
 
 ```bash
-# Process 4 PDFs simultaneously (Unix)
-find . -name "*.pdf" | parallel -j 4 python cli.py {} --ocr auto
+# Process 4 PDFs simultaneously (Unix, requires GNU parallel)
+find . -name "*.pdf" | parallel -j 4 pdfmd {} --ocr auto
 ```
 
 ---
@@ -690,11 +628,14 @@ pip install pymupdf
 
 ### "Tesseract binary is not available on PATH"
 
-**Windows:** Reinstall Tesseract and check "Add to PATH"  
+**Windows:** Reinstall Tesseract and check "Add to PATH" during installation  
 **macOS:** `brew install tesseract`  
 **Linux:** `sudo apt-get install tesseract-ocr`
 
-Verify: `tesseract --version`
+**Verify installation:**
+```bash
+tesseract --version
+```
 
 ### "OCRmyPDF not found"
 
@@ -702,19 +643,45 @@ Verify: `tesseract --version`
 pip install ocrmypdf
 ```
 
-Or on macOS: `brew install ocrmypdf`
+Or on macOS:
+```bash
+brew install ocrmypdf
+```
 
 ### OCR Output is Poor Quality
 
-1. Check original scan quality — blurry scans won't improve
-2. Try `--ocr ocrmypdf` instead of `tesseract`
-3. Ensure Tesseract language data is installed
-4. Use higher DPI (requires code modification)
+1. **Check original scan quality** — Blurry scans won't improve
+2. **Try different OCR mode:**
+   ```bash
+   pdfmd scan.pdf --ocr ocrmypdf  # Better than tesseract
+   ```
+3. **Ensure Tesseract language data is installed**
+4. **For very poor scans, consider rescanning at higher DPI**
 
 ### Password Dialog Not Appearing (GUI)
 
 - Ensure PyMuPDF is up to date: `pip install --upgrade pymupdf`
 - Check that PDF actually requires a password (not just restricted)
+- Try running from command line to see error messages
+
+### GUI Not Opening
+
+```bash
+# Check if tkinter is installed (comes with Python on most systems)
+python -c "import tkinter"
+
+# On Linux, you may need to install:
+sudo apt-get install python3-tk
+```
+
+### Command Not Found: `pdfmd`
+
+If installed as a package but command not found:
+
+```bash
+# Ensure pip install directory is in PATH, or use:
+python -m pdfmd.cli input.pdf
+```
 
 ---
 
@@ -727,26 +694,40 @@ Contributions welcome! You can help by:
 - Enhancing Markdown formatting logic
 - Expanding profile presets
 - Adding unit tests
+- Improving documentation
 
 ### Development Setup
 
 ```bash
-git clone https://github.com/M1ck4/pdf_to_md.git
-cd pdf_to_md
+# Clone repository
+git clone https://github.com/M1ck4/pdfmd.git
+cd pdfmd
 
 # Create virtual environment
 python -m venv venv
-source venv/bin/activate  # or venv\Scripts\activate on Windows
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
-# Install dependencies
-pip install -r requirements.txt
+# Install in development mode
+pip install -e .
+
+# Install development dependencies (if you add them)
+pip install pytest black flake8
 
 # Run tests (if available)
 pytest
 
 # Launch GUI
-python app_gui.py
+python -m pdfmd.app_gui
 ```
+
+### Reporting Issues
+
+When reporting bugs, please include:
+- Python version (`python --version`)
+- Operating system
+- Sample PDF (if not confidential)
+- Full error message
+- Steps to reproduce
 
 ---
 
@@ -768,5 +749,15 @@ Built with:
 - [pytesseract](https://github.com/madmaze/pytesseract) — Python Tesseract wrapper
 
 ---
+
+## 📮 Support & Contact
+
+- **Issues:** [GitHub Issues](https://github.com/M1ck4/pdfmd/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/M1ck4/pdfmd/discussions)
+- **Email:** [Your contact if applicable]
+
+---
+
+**pdfmd — Clean, structured Markdown from any PDF. Tables and equations included.**
 
 **Free. Open. Useful. Private. Always.**
