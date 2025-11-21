@@ -9,6 +9,8 @@ Included heuristics:
 - Detect and remove repeating headers/footers across pages.
 - Strip obvious drop caps (oversized first letter at paragraph start).
 - Merge bullet-only lines with following text lines for better list detection.
+- Detect and annotate tables with normalized rectangular grids.
+- Detect and annotate mathematical expressions and equations.
 - Compute body-size baselines used for heading promotion (by size).
 - Provide ALL-CAPS helpers used by the renderer for heading promotion.
 
@@ -342,7 +344,7 @@ def strip_drop_caps(pages: List[PageText]) -> List[PageText]:
 # --------------------------- Bullet line merging ---------------------------
 
 
-_BULLET_ONLY_PATTERN = re.compile(r"^[•○◦·\-–—]\s*$")
+_BULLET_ONLY_PATTERN = re.compile(r"^[•◦◦·\-—–]\s*$")
 
 
 def _merge_bullet_lines_in_page(page: PageText) -> PageText:
@@ -456,18 +458,110 @@ def estimate_body_size(pages: List[PageText]) -> List[float]:
     return body_sizes
 
 
+# --------------------------- Table detection & annotation ---------------------------
+
+
+def _annotate_tables_on_page(page: PageText, debug: bool = False) -> PageText:
+    """Detect tables and annotate blocks with table metadata.
+    
+    For each detected table, the corresponding block(s) get dynamic attributes:
+    - is_table: bool = True
+    - table_grid: List[List[str]] = normalized rectangular grid
+    - table_type: str = detection method used
+    - table_score: float = confidence score
+    
+    Args:
+        page: PageText to analyze
+        debug: If True, log detection details
+        
+    Returns:
+        New PageText with annotated blocks
+    """
+    detections = detect_tables_on_page(page, debug=debug)
+    
+    if not detections:
+        return page
+    
+    # Build a mapping of block_index -> TableDetection
+    table_map = {det.block_index: det for det in detections}
+    
+    new_blocks: List[Block] = []
+    
+    for idx, blk in enumerate(page.blocks):
+        if idx in table_map:
+            det = table_map[idx]
+            
+            # Normalize grid to ensure rectangular structure
+            max_cols = max(len(row) for row in det.grid)
+            normalized_grid = []
+            for row in det.grid:
+                if len(row) < max_cols:
+                    # Pad short rows with empty strings
+                    row = row + [''] * (max_cols - len(row))
+                normalized_grid.append(row)
+            
+            # Attach table metadata as dynamic attributes
+            setattr(blk, "is_table", True)
+            setattr(blk, "table_grid", normalized_grid)
+            setattr(blk, "table_type", det.detection_type)
+            setattr(blk, "table_score", det.score)
+            
+            if debug:
+                try:
+                    from .utils import log
+                    log(f"[transform] Annotated block {idx} as table "
+                        f"({det.detection_type}, {det.n_rows}x{det.n_cols}, "
+                        f"score={det.score:.2f})")
+                except ImportError:
+                    pass
+        
+        new_blocks.append(blk)
+    
+    return replace(page, blocks=new_blocks)
+
+
+def annotate_tables(pages: List[PageText], debug: bool = False) -> List[PageText]:
+    """Detect and annotate tables across all pages.
+    
+    Args:
+        pages: List of PageText objects to process
+        debug: If True, enable debug logging for table detection
+        
+    Returns:
+        List of PageText objects with table-annotated blocks
+    """
+    return [_annotate_tables_on_page(p, debug=debug) for p in pages]
+
+
 # --------------------------- Main transform API ---------------------------
 
 
 def transform_pages(
-    pages: List[PageText], options: Options
+    pages: List[PageText], 
+    options: Options,
+    debug_tables: bool = False,
 ) -> Tuple[List[PageText], Optional[str], Optional[str], List[float]]:
     """Run the standard transform pipeline.
 
+    Pipeline stages:
+    1. Strip decorative drop caps
+    2. Detect and remove repeating headers/footers (if enabled)
+    3. Merge bullet-only lines with following text
+    4. Detect and annotate tables
+    5. Detect and annotate mathematical expressions
+    6. Compute body font size baselines
+
+    Args:
+        pages: Raw extracted PageText objects
+        options: Transformation options (from models.Options)
+        debug_tables: Enable debug logging for table detection
+        
     Returns:
-        pages_t        : transformed pages
-        header, footer : detected repeating header and footer strings (if any)
-        body_sizes     : per page body size baselines
+        Tuple of:
+        - pages_t: Transformed pages with annotations
+        - header: Detected repeating header string (or None)
+        - footer: Detected repeating footer string (or None)
+        - body_sizes: Per-page body font size baselines
     """
     # 1. Strip decorative drop caps.
     pages_t = strip_drop_caps(pages)
@@ -484,27 +578,7 @@ def transform_pages(
     pages_t = merge_bullet_lines(pages_t)
 
     # 4. Detect simple text tables and annotate blocks.
-    annotated_pages: List[PageText] = []
-    for page in pages_t:
-        detections = detect_tables_on_page(page)
-        if not detections:
-            annotated_pages.append(page)
-            continue
-
-        new_blocks: List[Block] = []
-        for idx, blk in enumerate(page.blocks):
-            # Attach table metadata if this block was detected as a table.
-            for det in detections:
-                if det.block_index == idx:
-                    # dynamic attributes; renderer will check these later
-                    setattr(blk, "is_table", True)
-                    setattr(blk, "table_grid", det.grid)
-                    break
-            new_blocks.append(blk)
-
-        annotated_pages.append(replace(page, blocks=new_blocks))
-
-    pages_t = annotated_pages
+    pages_t = annotate_tables(pages_t, debug=debug_tables)
 
     # 5. Detect and annotate math equations and expressions.
     for page in pages_t:
@@ -525,5 +599,6 @@ __all__ = [
     "strip_drop_caps",
     "merge_bullet_lines",
     "estimate_body_size",
+    "annotate_tables",
     "transform_pages",
 ]
