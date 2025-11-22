@@ -20,7 +20,7 @@
   - [Accurate Markdown From Any PDF](#-accurate-markdown-from-any-pdf)
   - [Automatic Table Detection](#-automatic-table-detection--reconstruction)
   - [Math-Aware Extraction](#-math-aware-extraction--latex-preservation)
-  - [Scanned PDF Support (OCR)](#-scanned-pdf-support-ocr)
+  - [Scanned PDF Support](#-scanned-pdf-support-ocr)
   - [Modern GUI Experience](#-modern-gui-experience)
 - [Interface Preview](#️-interface-preview)
 - [Architecture Overview](#-architecture-overview)
@@ -30,7 +30,7 @@
   - [Why This Matters](#-why-this-matters)
   - [Ready for Future Expansion](#-ready-for-future-expansion)
 - [Installation](#️-installation)
-  - [Quick Install (Development)](#quick-install-development)
+  - [Quick Install](#quick-install-development)
   - [Install as Package](#install-as-package-recommended)
   - [Platform-Specific Setup](#platform-specific-setup)
   - [Windows Standalone Executable](#windows-standalone-executable)
@@ -73,6 +73,9 @@
 - [Acknowledgments](#-acknowledgments)
   - [Special Thanks](#special-thanks)
 - [Links](#-links)
+- [Support](#-support)
+  - [Getting Help](#getting-help)
+  - [Feature Requests](#feature-requests)
 - [Tips & Best Practices](#-tips--best-practices)
   - [For Researchers](#for-researchers)
   - [For Legal Professionals](#for-legal-professionals)
@@ -412,7 +415,6 @@ python app_gui.py
 
 1. **📂 Select Input PDF**
    - Click **Browse...** next to "Input PDF"
-   - Or drag-and-drop your PDF file (if supported by your OS)
    - The path is remembered between sessions
 
 2. **💾 Choose Output Location**
@@ -465,34 +467,6 @@ python app_gui.py
    - When complete, click **Open folder** link
    - Opens the output directory in your file manager
    - Your Markdown file is ready to use!
-
-#### Interface Overview
-
-```
-┌─────────────────────────────────────────────┐
-│  [Convert → Markdown]  [Stop]               │ ← Action Buttons
-├─────────────────────────────────────────────┤
-│ Paths                                       │
-│  Input PDF:   [________________] [Browse...] │
-│  Output .md:  [________________] [Browse...] │
-├─────────────────────────────────────────────┤
-│ Options                                     │
-│  Profile: [Default ▼] [Save profile...]    │
-│  Theme: [Dark ▼]                            │
-│  OCR mode: [auto ▼]  ☑️ Preview ☑️ Export   │
-│  ☑️ Remove header/footer  ☑️ CAPS headings   │
-│  Heading ratio: [1.15]  Orphan length: [45] │
-├─────────────────────────────────────────────┤
-│ Progress & log                              │
-│  [████████████░░░░░░░░] 65%                 │
-│  Status: Converting...    [Open folder]     │
-│  ┌───────────────────────────────────────┐ │
-│  │ [pipeline] Extracting text...         │ │
-│  │ [pipeline] Transforming pages...      │ │
-│  │ [pipeline] Rendering Markdown...      │ │
-│  └───────────────────────────────────────┘ │
-└─────────────────────────────────────────────┘
-```
 
 #### Profiles
 
@@ -605,11 +579,8 @@ The CLI can be invoked in several ways:
 # If installed as a package (recommended):
 pdfmd input.pdf
 
-# Using Python module syntax:
+# Using Python module syntax (from project root):
 python -m pdfmd.cli input.pdf
-
-# Direct execution (from package directory):
-python cli.py input.pdf
 ```
 
 #### Quick Start
@@ -947,7 +918,14 @@ fi
 
 Settings saved to: `~/.pdfmd_gui.json`
 
+The GUI persists your last-used options to this config file. The CLI currently uses its own defaults and command-line flags.
+
 Safe to edit manually for advanced customization.
+
+To reset GUI settings:
+```bash
+rm ~/.pdfmd_gui.json
+```
 
 ---
 
@@ -1205,142 +1183,6 @@ Contributions welcome! You can help by:
 - Adding unit tests
 - Improving documentation
 
-### Development Setup
-
-```bash
-# Clone repository
-git clone https://github.com/M1ck4/pdfmd.git
-cd pdfmd
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# Install in development mode
-pip install -e .
-
-# Install development dependencies (if you add them)
-pip install pytest black flake8
-
-# Run tests (if available)
-pytest
-
-# Launch GUI
-python -m pdfmd.app_gui
-```
-
-### Code Style
-
-- Follow PEP 8 guidelines
-- Use type hints where appropriate
-- Document public functions and classes
-- Keep modules focused on single responsibilities
-- Write descriptive commit messages
-
-### Testing Guidelines
-
-When testing your changes:
-
-1. **Test with various PDF types:**
-   - Native digital PDFs
-   - Scanned documents
-   - Mixed (digital + scanned)
-   - Password-protected
-   - Multi-column layouts
-   - Tables and equations
-
-2. **Test OCR modes:**
-   - Verify `auto` detection works correctly
-   - Test `tesseract` and `ocrmypdf` modes
-   - Check fallback behavior
-
-3. **Test edge cases:**
-   - Empty PDFs
-   - Single-page documents
-   - Very large files (>100 pages)
-   - Corrupted or malformed PDFs
-
-### Reporting Issues
-
-When reporting bugs, please include:
-
-- **Python version:** `python --version`
-- **Operating system:** Windows/macOS/Linux + version
-- **Sample PDF:** If not confidential, attach or link to problematic PDF
-- **Full error message:** Copy entire error/traceback
-- **Steps to reproduce:** Detailed steps to replicate the issue
-- **Expected vs. actual behavior:** What you expected and what happened
-- **Screenshots:** If GUI-related, include screenshots
-
-**Issue Template:**
-
-```markdown
-**Environment:**
-- OS: [e.g., Windows 11, macOS 13.2, Ubuntu 22.04]
-- Python version: [e.g., 3.10.5]
-- pdfmd version: [e.g., 1.5.1]
-- Installation method: [package / development / standalone exe]
-
-**Description:**
-[Clear description of the issue]
-
-**Steps to Reproduce:**
-1. [First step]
-2. [Second step]
-3. [...]
-
-**Expected Behavior:**
-[What you expected to happen]
-
-**Actual Behavior:**
-[What actually happened]
-
-**Error Message:**
-```
-[Full error message or traceback]
-```
-
-**Additional Context:**
-[Any other relevant information]
-```
-
-### Pull Request Process
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature-name`
-3. Make your changes with clear, descriptive commits
-4. Test thoroughly across different PDF types
-5. Update documentation if needed
-6. Submit PR with detailed description of changes
-
-**PR Template:**
-
-```markdown
-**Description:**
-[Brief description of changes]
-
-**Type of Change:**
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Documentation update
-- [ ] Performance improvement
-- [ ] Code refactoring
-
-**Testing:**
-- [ ] Tested with native PDFs
-- [ ] Tested with scanned PDFs
-- [ ] Tested with password-protected PDFs
-- [ ] Tested GUI changes
-- [ ] Tested CLI changes
-- [ ] Added/updated tests
-
-**Related Issues:**
-Closes #[issue number]
-
-**Additional Notes:**
-[Any additional information]
-```
-
 ---
 
 ## 📜 License
@@ -1385,7 +1227,7 @@ Built with:
 1. **Check Documentation:** Read this README thoroughly
 2. **Search Issues:** Check if your problem is already reported
 3. **Ask Questions:** Open a GitHub issue with the `question` label
-4. **Report Bugs:** Use the issue template above
+4. **Report Bugs:** Provide detailed information (see Contributing section)
 
 ### Feature Requests
 
@@ -1393,75 +1235,6 @@ We welcome feature requests! Please open an issue with:
 - Clear description of the proposed feature
 - Use cases and benefits
 - Any implementation ideas (optional)
-
----
-
-## 🗺️ Roadmap
-
-### Planned Features
-
-- [ ] **Enhanced Table Support**
-  - Row/column span detection
-  - Nested tables
-  - Better header detection
-
-- [ ] **Advanced Math Rendering**
-  - Configurable math detection sensitivity
-  - Support for more complex equation formats
-  - Chemical formulas (ChemML)
-
-- [ ] **Image Processing**
-  - Chart/diagram extraction and description
-  - Figure caption detection
-  - Image compression options
-
-- [ ] **Format Enhancements**
-  - Footnote/endnote support
-  - Cross-reference preservation
-  - Bibliography extraction
-
-- [ ] **Performance Optimizations**
-  - Parallel page processing
-  - Incremental conversion (resume from checkpoint)
-  - Memory optimization for large PDFs
-
-- [ ] **Integration**
-  - Plugin for Obsidian
-  - VS Code extension
-  - Web service (self-hosted)
-
-### Version History
-
-**v1.5.1** (Current)
-- Enhanced table detection with three-strategy approach
-- Math-aware extraction with LaTeX preservation
-- Improved password handling security
-- GUI theme improvements
-- Comprehensive CLI with batch support
-
-**v1.4.x**
-- Basic table detection
-- OCR auto-detection
-- GUI dark mode
-
-**v1.3.x**
-- Multi-column awareness
-- Header/footer removal
-- Profile system
-
-**v1.2.x**
-- OCRmyPDF integration
-- Image export
-- CLI improvements
-
-**v1.1.x**
-- Tesseract OCR support
-- Basic GUI
-
-**v1.0.x**
-- Initial release
-- Native text extraction
-- Basic Markdown rendering
 
 ---
 
@@ -1500,5 +1273,3 @@ We welcome feature requests! Please open an issue with:
 **Free. Open. Useful. Private. Always.**
 
 ---
-
-*pdfmd — Because your documents deserve better than the cloud.*
