@@ -7,80 +7,112 @@
 ![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
-![Version](https://img.shields.io/badge/version-1.5.1-purple)
+![Version](https://img.shields.io/badge/version-1.5.1-purple
 
 ---
 
 ## 📑 Table of Contents
 
-- [Privacy & Security First](#️-privacy--security-first)
-  - [Trusted for Sensitive Workflows](#trusted-for-sensitive-workflows)
-  - [Password-Protected PDFs](#password-protected-pdfs--secure-support)
-- [Key Features](#-key-features)
-  - [Accurate Markdown From Any PDF](#-accurate-markdown-from-any-pdf)
-  - [Automatic Table Detection](#-automatic-table-detection--reconstruction)
-  - [Math-Aware Extraction](#-math-aware-extraction--latex-preservation)
-  - [Scanned PDF Support](#-scanned-pdf-support-ocr)
-  - [Modern GUI Experience](#-modern-gui-experience)
-- [Interface Preview](#️-interface-preview)
-- [Architecture Overview](#-architecture-overview)
-  - [Module Overview](#-module-overview)
-  - [Design Philosophy](#️-design-philosophy)
-  - [Data Flow](#-data-flow-overview)
-  - [Why This Matters](#-why-this-matters)
-  - [Ready for Future Expansion](#-ready-for-future-expansion)
-- [Installation](#️-installation)
-  - [Quick Install](#quick-install-development)
-  - [Install as Package](#install-as-package-recommended)
-  - [Platform-Specific Setup](#platform-specific-setup)
-  - [Windows Standalone Executable](#windows-standalone-executable)
-- [Usage](#-usage)
-  - [GUI Application](#️-gui-application)
-    - [Launching the GUI](#launching-the-gui)
-    - [Quick Workflow](#quick-workflow)
-    - [Profiles](#profiles)
-    - [Keyboard Shortcuts](#keyboard-shortcuts)
-    - [GUI Features](#gui-features)
-    - [Common GUI Workflows](#common-gui-workflows)
-  - [Command-Line Interface](#-command-line-interface)
-    - [Installation & Running](#installation--running)
-    - [Quick Start](#quick-start)
-    - [Common CLI Workflows](#common-cli-workflows)
-    - [Full Options Reference](#full-options-reference)
-    - [Advanced CLI Examples](#advanced-cli-examples)
-    - [Output Behavior](#output-behavior)
-    - [CLI Error Handling](#cli-error-handling)
-    - [CLI Security Notes](#cli-security-notes)
-    - [CLI Performance Tips](#cli-performance-tips)
-    - [Exit Codes](#exit-codes)
-- [Configuration Options](#-configuration-options)
-  - [Key Settings](#key-settings)
-  - [Profile Storage](#profile-storage)
-- [Example Output](#️-example-output)
-  - [Table Example](#table-example)
-  - [Math Example](#math-example)
-- [Performance Tips](#-performance-tips)
-  - [For Large Documents](#for-large-documents-100-pages)
-  - [For Slow Systems](#for-slow-systems)
-  - [Batch Processing Performance](#batch-processing-performance)
-  - [OCR Strategy](#ocr-strategy)
-- [Troubleshooting](#️-troubleshooting)
-  - [Common Issues](#common-issues)
-  - [GUI-Specific Issues](#gui-specific-issues)
-  - [Performance Issues](#performance-issues)
-- [Contributing](#-contributing)
-- [License](#-license)
-- [Acknowledgments](#-acknowledgments)
-  - [Special Thanks](#special-thanks)
-- [Links](#-links)
-- [Support](#-support)
-  - [Getting Help](#getting-help)
-  - [Feature Requests](#feature-requests)
-- [Tips & Best Practices](#-tips--best-practices)
-  - [For Researchers](#for-researchers)
-  - [For Legal Professionals](#for-legal-professionals)
-  - [For Developers](#for-developers)
-  - [For General Users](#for-general-users)
+* [Privacy & Security First](#️-privacy--security-first)
+
+  * [Trusted for Sensitive Workflows](#trusted-for-sensitive-workflows)
+  * [Password-Protected PDFs](#password-protected-pdfs--secure-support)
+
+* [Key Features](#-key-features)
+
+  * [Accurate Markdown From Any PDF](#-accurate-markdown-from-any-pdf)
+  * [Automatic Table Detection](#-automatic-table-detection--reconstruction)
+  * [Math-Aware Extraction](#-math-aware-extraction--latex-preservation)
+  * [Scanned PDF Support](#-scanned-pdf-support-ocr)
+  * [Modern GUI Experience](#-modern-gui-experience)
+
+* [Interface Preview](#️-interface-preview)
+
+* [Architecture Overview](#-architecture-overview)
+
+  * [Module Overview](#-module-overview)
+  * [Design Philosophy](#️-design-philosophy)
+  * [Data Flow](#-data-flow-overview)
+  * [Why This Matters](#-why-this-matters)
+  * [Ready for Future Expansion](#-ready-for-future-expansion)
+
+* [Installation](#️-installation)
+
+  * [Quick Install](#quick-install-development)
+  * [Install as Package](#install-as-package-recommended)
+  * [Platform-Specific Setup](#platform-specific-setup)
+  * [Windows Standalone Executable](#windows-standalone-executable)
+
+* [Usage](#-usage)
+
+  * [GUI Application](#️-gui-application)
+
+    * [Launching the GUI](#launching-the-gui)
+    * [Quick Workflow](#quick-workflow)
+    * [Profiles](#profiles)
+    * [Keyboard Shortcuts](#keyboard-shortcuts)
+    * [GUI Features](#gui-features)
+    * [Common GUI Workflows](#common-gui-workflows)
+  * [Command-Line Interface](#-command-line-interface)
+
+    * [Installation & Running](#installation--running)
+    * [Quick Start](#quick-start)
+    * [Common CLI Workflows](#common-cli-workflows)
+    * [Full Options Reference](#full-options-reference)
+    * [Advanced CLI Examples](#advanced-cli-examples)
+    * [Output Behavior](#output-behavior)
+    * [CLI Error Handling](#cli-error-handling)
+    * [CLI Security Notes](#cli-security-notes)
+    * [CLI Performance Tips](#cli-performance-tips)
+    * [Exit Codes](#exit-codes)
+
+* [API Documentation](#api-documentation)
+
+* [Configuration Options](#-configuration-options)
+
+  * [Key Settings](#key-settings)
+  * [Profile Storage](#profile-storage)
+
+* [Example Output](#️-example-output)
+
+  * [Table Example](#table-example)
+  * [Math Example](#math-example)
+
+* [Performance Tips](#-performance-tips)
+
+  * [For Large Documents](#for-large-documents-100-pages)
+  * [For Slow Systems](#for-slow-systems)
+  * [Batch Processing Performance](#batch-processing-performance)
+  * [OCR Strategy](#ocr-strategy)
+
+* [Troubleshooting](#️-troubleshooting)
+
+  * [Common Issues](#common-issues)
+  * [GUI-Specific Issues](#gui-specific-issues)
+  * [Performance Issues](#performance-issues)
+
+* [Contributing](#-contributing)
+
+* [License](#-license)
+
+* [Acknowledgments](#-acknowledgments)
+
+  * [Special Thanks](#special-thanks)
+
+* [Links](#-links)
+
+* [Support](#-support)
+
+  * [Getting Help](#getting-help)
+  * [Feature Requests](#feature-requests)
+
+* [Tips & Best Practices](#-tips--best-practices)
+
+  * [For Researchers](#for-researchers)
+  * [For Legal Professionals](#for-legal-professionals)
+  * [For Developers](#for-developers)
+  * [For General Users](#for-general-users)
+
 
 ---
 
@@ -398,13 +430,6 @@ Download the latest `.exe` from [Releases](https://github.com/M1ck4/pdfmd/releas
 
 **Note:** Tesseract must still be installed separately for OCR functionality.
 
-
-### Windows Standalone Executable
-
-Download the latest `.exe` from [Releases](https://github.com/M1ck4/pdfmd/releases) — no Python required.
-
-**Note:** Tesseract must still be installed separately for OCR functionality.
-
 ---
 
 ## 🚀 Usage
@@ -443,6 +468,7 @@ python app_gui.py
      - **Slides / handouts** — Image export + page breaks
      - **Scan-heavy / OCR-first** — Force OCR on all pages
    - Or use your custom saved profiles
+  
 
 4. **🔧 Configure Options**
    
@@ -901,6 +927,19 @@ else
   exit 1
 fi
 ```
+## API Documentation
+
+For developers wanting to integrate **pdfmd** into their own Python code, a full, detailed API reference is available:
+
+👉 **[Full API Reference](https://github.com/M1ck4/pdfmd/blob/main/doc/API.md)**
+
+This document covers:
+
+* Programmatic use of `pdf_to_markdown`
+* All `Options` fields and behaviours
+* Progress & logging callbacks
+* Advanced / lower-level pipeline access
+* Integration examples (scripts, pandoc, Jupyter)
 
 ---
 
